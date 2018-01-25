@@ -1,0 +1,1 @@
+/usr/bin/c++    -std=c++11    CMakeFiles/ddcrp-gibbs-example.dir/src/main.cpp.o  -o ../bin/ddcrp-gibbs-example -rdynamic libddcrp-gibbs.a -lboost_program_options 

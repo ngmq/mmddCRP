@@ -1,0 +1,2 @@
+/usr/bin/ar cr libddcrp-gibbs.a  CMakeFiles/ddcrp-gibbs.dir/src/CustomerAssignment.cpp.o CMakeFiles/ddcrp-gibbs.dir/src/mmddCRP.cpp.o
+/usr/bin/ranlib libddcrp-gibbs.a

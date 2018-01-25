@@ -1,0 +1,46 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/CustomerAssignment.h
+boost/function.hpp
+-
+set
+-
+
+../include/mmddCRP.h
+CustomerAssignment.h
+../include/CustomerAssignment.h
+eigen3/Eigen/Dense
+-
+boost/random/mersenne_twister.hpp
+-
+boost/math/special_functions/gamma.hpp
+-
+boost/math/special_functions/digamma.hpp
+-
+memory
+-
+iostream
+-
+
+/home/ngmq/ddcrp-gibbs-master/src/mmddCRP.cpp
+mmddCRP.h
+/home/ngmq/ddcrp-gibbs-master/src/mmddCRP.h
+boost/random/discrete_distribution.hpp
+-
+boost/random/uniform_real.hpp
+-
+boost/random/variate_generator.hpp
+-
+boost/range/algorithm.hpp
+-
+vector
+-
+iostream
+-
+
