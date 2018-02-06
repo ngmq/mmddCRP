@@ -14,10 +14,10 @@
 class mmddCRP
 {
 public:
-    mmddCRP(const Eigen::MatrixXd& data, double C, double lambda, double alpha, unsigned int seed);
+    mmddCRP(const Eigen::MatrixXd& data, double C, double lambda, double alpha, double gamma, double S, unsigned int seed);
     void iterate(bool debug = false);
     void print_tables(std::ostream &os) const;
-
+    void print_table_vectors() const;
     std::size_t get_table(std::size_t customer) const;
     std::size_t num_tables() const;
     std::size_t num_customers() const;
@@ -35,11 +35,16 @@ private:
     Eigen::MatrixXd data_;
     Eigen::MatrixXd tables_;
     Eigen::VectorXd initmean_;
+    Eigen::VectorXd colwiseMin_, colwiseMax_;
     double C_;
     double lambda_;
     double k_;
     double alpha_;
+    double gamma_;
+    double S_;
+    double maxPossibleDistance_;
     std::vector<std::size_t> data_indices;
+    std::size_t dim_;
 
     boost::random::mt19937 rng_;
 };

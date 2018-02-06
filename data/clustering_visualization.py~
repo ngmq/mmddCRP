@@ -9,7 +9,9 @@ def get_cmap(n, name='hsv'):
     RGB color; the keyword argument name must be a standard mpl colormap name.'''
     return plt.cm.get_cmap(name, n)
     
-data = np.loadtxt("data.csv", delimiter=",")
+#data = np.loadtxt("data.csv", delimiter=",")
+#data = np.loadtxt("flame.txt", delimiter=",")
+data = np.loadtxt("jain.txt", delimiter=",")
 print data.shape
 
 N = data.shape[0]
@@ -34,28 +36,31 @@ rb_colors = cm.rainbow(np.linspace(0, 1, 21))
 #print "rb_colors = ", rb_colors
 
 #print arr_colors
-rcolors = N * [[0., 0., 0., 0.]]
+#rcolors = N * [[0., 0., 0., 0.]]
+rcolors = N * [0]
 rcolors2 = N * [0.]
 # clustering_0000
 # Mikko_clustering_0049
 # Mikkko_DontcareL_clustering_0000
-with open("clustering_0000.csv", "r") as f:
+# jain_groundtruth.csv
+with open("clustering_0000", "r") as f:
     cnt = 0
     for line in f:
-        #rcolors2 = N * [0.]
+        rcolors = N * [0.]
         arr = np.fromstring(line, dtype=int, sep=',')
         #print arr
         #k =  #np.random.rand()
+        print "cnt = ", cnt
         for i in arr:
-            rcolors[i] = rb_colors[cnt]
+            rcolors[i] = arr_colors[cnt + 1]
             rcolors2[i] = arr_colors[cnt+1]
         cnt += 1
         #rcolors = [k] * len(arr)
         #print "cnt = ", cnt
         #print "k = ", k
         #print "rcolors = ", rcolors
-        #plt.scatter(x, y, c=rcolors2)
-        #plt.show()
+        plt.scatter(x, y, c=rcolors)
+        plt.show()
     print("Number of clusters = {}".format(cnt))
         
 #print rcolors

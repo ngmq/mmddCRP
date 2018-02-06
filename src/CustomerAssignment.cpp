@@ -3,8 +3,8 @@
 #include <iostream>
 
 CustomerAssignment::CustomerAssignment(std::size_t num_customers)
-    : tables_(num_customers, 0),
-      table_counts_(num_customers, 1),
+    : tables_(num_customers, -1),
+      table_counts_(num_customers, 0),
       n_customers_(num_customers)
 {
     active_tables_.resize(num_customers);
@@ -46,7 +46,10 @@ void CustomerAssignment::unlink(std::size_t source)
 {
     std::size_t old_table = tables_[source];
     tables_[source] = -1;
-    table_counts_[old_table] -= 1;
+    if(old_table >= 0 && old_table < n_customers_)
+    {
+        table_counts_[old_table] -= 1;    
+    }    
 }
 
 void CustomerAssignment::link(std::size_t source, std::size_t target)
