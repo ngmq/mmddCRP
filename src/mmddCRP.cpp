@@ -61,6 +61,16 @@ mmddCRP::mmddCRP(const Eigen::MatrixXd &data, double C, double lambda, double al
     initmean_ = data_.colwise().mean();
     data_.rowwise() -= initmean_.transpose();
 
+    pairwiseDistance_ = Eigen::MatrixXd::Zero(data_.rows(), data_.rows());
+    for(std::size_t i = 0; i < data_.rows(); ++i)
+    {
+        for(std::size_t j = i; j < data_.rows(); ++j)
+        {
+            pairwiseDistance_(i, j) = (data_.row(i) - data_.row(j)).norm();
+            pairwiseDistance_(j, i) = pairwiseDistance_(i, j);
+        }
+    }
+
     // std::cout << "ALL the distances:\n";
 
     // std::vector<double> vdist;
@@ -160,7 +170,7 @@ void mmddCRP::iterate(bool debug)
     //std::cout << "k = " << k << "; n = " << n << std::endl;
 
     // with alpha = 6.9, n = 100 -> log_alpha_ = log(6.9/100) = -0.8/0.3 = -2.6667
-    //k = 40;
+
     alpha_ = ars(k, n);
     
     //std::cout << "next alpha = " << alpha_ << "; log(alpha/n) = " << std::log(alpha_/n) << std::endl;
@@ -262,19 +272,21 @@ double mmddCRP::get_log_link_prior(std::size_t source, std::size_t target) const
         //     tmp = (data_.row(source) - data_.row(rowIdx)).norm();
         //     dist = std::min(dist, tmp);
         // }
+
         for(std::size_t customerId = 0; customerId < num_customers(); ++customerId)
         {
             if( ca_.is_in_table(customerId, target) )
             {
-                tmp = (data_.row(source) - data_.row(customerId)).norm();
+                tmp = pairwiseDistance_(source, customerId); //(data_.row(source) - data_.row(customerId)).norm();
                 dist = std::min(dist, tmp);
             }
         }
+
         //return std::log(1.0 * ca_.get_table_size(target) / num_customers());
 
         //dist = (data_.row(source) - tables_.row(target)).norm();
-        double k1 = 0.0;
-        double k2 = 1.0;
+        double k1 = 1.0;
+        double k2 = 0.0;
         //if(source == 3)
         {
             //std::cout << ca_.get_table_size(target) << ", " << 
@@ -282,7 +294,7 @@ double mmddCRP::get_log_link_prior(std::size_t source, std::size_t target) const
         }
         return -dist/gamma_;
         
-        return k1 * std::log(1.0 * ca_.get_table_size(target) / num_customers()) + k2 * -dist / gamma_;
+        return k1 * std::log(1.0 * ca_.get_table_size(target) / num_customers());// + k2 * -dist / gamma_;
 
         // if( dist <= 1.5 )
         // {
