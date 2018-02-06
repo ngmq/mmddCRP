@@ -255,12 +255,20 @@ double mmddCRP::get_log_link_prior(std::size_t source, std::size_t target) const
     {
         target = ca_.get_real_idx(target);
         
-        std::set<std::size_t> ss = ca_.get_table_members(target);
         double dist = std::numeric_limits<double>::max(), tmp;
-        for(std::size_t rowIdx : ss)
+        // std::set<std::size_t> ss = ca_.get_table_members(target);
+        // for(std::size_t rowIdx : ss)
+        // {
+        //     tmp = (data_.row(source) - data_.row(rowIdx)).norm();
+        //     dist = std::min(dist, tmp);
+        // }
+        for(std::size_t customerId = 0; customerId < num_customers(); ++customerId)
         {
-            tmp = (data_.row(source) - data_.row(rowIdx)).norm();
-            dist = std::min(dist, tmp);
+            if( ca_.is_in_table(customerId, target) )
+            {
+                tmp = (data_.row(source) - data_.row(customerId)).norm();
+                dist = std::min(dist, tmp);
+            }
         }
         //return std::log(1.0 * ca_.get_table_size(target) / num_customers());
 
