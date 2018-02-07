@@ -97,7 +97,7 @@ prior = -1.09861, ll = 2.71828; p = 1.61967; exp = 5.05143
 assign 5 to table numbered 3 real is 3
 ```
 
-This is the log from the very first burning iteration. The point source 5 is the middle one of the second class. Since point 5 clearly closer to point 3 than point 4, the probability of linking 5 and 3 should be higher than or at least comparable to the probability of linking 5 and 4. However, under the effect of the scaling factor S = 3.0 the probability of linking 5 and 4 is 10.4363 / 4.16454 = 2.5 times higher than the probability of linking 5 and 3 simply because the randomly generated feature vector of table 4 is more similar to that of table 5. Certainly this is not an expected behavior.
+This is the log from the very first burning iteration. The point source 5 is the middle one of the second class. Since point 5 clearly closer to point 3 than point 4, the probability of linking 5 and 3 should be higher than or at least comparable to the probability of linking 5 and 4. However, under the effect of the scaling factor S = 3.0 the probability of linking 5 and 4 is 10.4363 / 4.16454 = 2.5 times higher than the probability of linking 5 and 3 simply because the randomly generated feature vector of table 4 is more similar to that of table 5. Certainly this is not an expected behavior. Empirically, for jain_simple S = 2 works best.
 
 In summary, setting S higher than 1.0 might be desirable to make the clustering result more stable and convering faster, but S should be carefully tuned as well to avoid unexpected effects.
 
