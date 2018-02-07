@@ -1,4 +1,5 @@
-== Parameter gamma ==
+**Parameter gamma**
+
 The hyperparameter gamma in the exponential decay function is extremely important: f(d) = exp(-d / gamma)
 
 - If gamma is too small, then small distances betwen pairs of points get exaggerated (largeer than alpha) and multiple trival clusters with single data points are more likely to be created.
@@ -19,7 +20,7 @@ Large gamma:
 
 In each case, the posterior distribution of clusterings (e.g. how often clusters with 01 table of all points; how often points from two different classes are in the same clusters) clearly indicates the effect of different values of gammas.
 
-== Parameter C ==
+**Parameter C**
 
 If C is too large: the feature vector of each tables will fluctuate and the clustering result will not converge to a proper configuration. To see this effect, generate 50 clustering samples with the following parameters:
 
@@ -45,7 +46,7 @@ here, the first cluster should not contain point 4.
 
 On the other hand, setting C too small leads to the feature vectors of tables stay at "random" state for too long. In this case the dot products will not capture the necessary similarity features in the likelihood function, so the algorithm either takes a long time to converge or fails to converge at all.
 
-== Parameter S ==
+**Parameter S**
 
 
 
