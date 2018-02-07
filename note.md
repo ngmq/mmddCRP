@@ -12,11 +12,15 @@ Too see the effect of large and small gamma empirically, test the framework with
 
 Small gamma:
 
+```
 ./../bin/ddcrp-gibbs-example -w true -f jain_simple.txt -b 50 -n 50 -a 2 -s 3 -i 1 --g 0.04 --lambda 0 --C 0.03 --S 1.0 > log.txt
+```
 
 Large gamma:
 
+```
 ./../bin/ddcrp-gibbs-example -w true -f jain_simple.txt -b 50 -n 50 -a 2 -s 3 -i 1 --g 40.0 --lambda 0 --C 0.03 --S 1.0 > log.txt
+```
 
 In each case, the posterior distribution of clusterings (e.g. how often clusters with 01 table of all points; how often points from two different classes are in the same clusters) clearly indicates the effect of different values of gammas.
 
@@ -24,23 +28,31 @@ In each case, the posterior distribution of clusterings (e.g. how often clusters
 
 If C is too large: the feature vector of each tables will fluctuate and the clustering result will not converge to a proper configuration. To see this effect, generate 50 clustering samples with the following parameters:
 
+```
 ./../bin/ddcrp-gibbs-example -w true -f jain_simple.txt -b 200 -n 50 -a 2 -s 3 -i 1 --g 1.0 --lambda 0 --C 1.0 --S 1.0 > log.txt
+```
 
 The 3rd sample ("clustering_0002") achieves the groundtruth-like result:
 
+```
 0, 1, 2
 3, 4, 5
+```
 
 All subsequent samples achieve the same or very similar results with no two points of different classes in the same cluster. However, the 11th sample ("clustering_0010") has the following configuration:
 
+```
 0, 2
 1, 5
 3, 4
+```
 
 which is totally unacceptable because point 1 and point 5 are of two different classes. The same thing happens in the 14th sample:
 
+```
 0, 1, 2, 4
 3, 5
+```
 
 here, the first cluster should not contain point 4.
 
@@ -50,9 +62,11 @@ On the other hand, setting C too small leads to the feature vectors of tables st
 
 Essentially, larger S leads to faster convergence. With larger S, the positive similarities (dot product) get enlarged and the negative similarties get reduced. As the Gibbs sampling processes, for each customer, these changes create highly distinctive probabilities of tables connecting to that customer. S shouldn't be too large though for the sake of numerical stability and for avoiding bad luck when the randomly generated feature vector of a new table happen to be similar to some other existing table or some data points. Too large S could also overpower the distances. For example, running on the jain_simple dataset we get the following log:
 
+```
 /../bin/ddcrp-gibbs-example -w true -f jain_simple.txt -b 210 -n 3 -a 2 -s 3 -i 1 --g 1.0 --lambda 0 --C 0.01 --S 3.0 > log.txt
+```
 
-
+```
 ============= source = 5
 === currently all tables are:
 ------ table features ------
@@ -81,6 +95,7 @@ prior = -0.111823, ll = 1.53843; p = 1.42661; exp = 4.16454
 prior = -0.166686, ll = 2.51198; p = 2.34529; exp = 10.4363
 prior = -1.09861, ll = 2.71828; p = 1.61967; exp = 5.05143
 assign 5 to table numbered 3 real is 3
+```
 
 This is the log from the very first burning iteration. The point source 5 is the middle one of the second class. Since point 5 clearly closer to point 3 than point 4, the probability of linking 5 and 3 should be higher than or at least comparable to the probability of linking 5 and 4. However, under the effect of the scaling factor S = 3.0 the probability of linking 5 and 4 is 10.4363 / 4.16454 = 2.5 times higher than the probability of linking 5 and 3 simply because the randomly generated feature vector of table 4 is more similar to that of table 5. Certainly this is not an expected behavior.
 
