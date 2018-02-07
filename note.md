@@ -48,6 +48,41 @@ On the other hand, setting C too small leads to the feature vectors of tables st
 
 **Parameter S**
 
+Essentially, larger S leads to faster convergence. With larger S, the positive similarities (dot product) get enlarged and the negative similarties get reduced. As the Gibbs sampling processes, for each customer, these changes create highly distinctive probabilities of tables connecting to that customer. S shouldn't be too large though for the sake of numerical stability and for avoiding bad luck when the randomly generated feature vector of a new table happen to be similar to some other existing table or some data points. Too large S could also overpower the distances. For example, running on the jain_simple dataset we get the following log:
+
+/../bin/ddcrp-gibbs-example -w true -f jain_simple.txt -b 210 -n 3 -a 2 -s 3 -i 1 --g 1.0 --lambda 0 --C 0.01 --S 3.0 > log.txt
 
 
+============= source = 5
+=== currently all tables are:
+------ table features ------
+*** table id: 0; real id: 0 feature vector:  0.680375 -0.329554
+*** table id: 1; real id: 1 feature vector: -0.211234  0.536459
+*** table id: 2; real id: 2 feature vector:  0.566198 -0.444451
+*** table id: 3; real id: 3 feature vector: 0.59688 0.10794
+*** table id: 4; real id: 4 feature vector:   0.823295 -0.0452059
+*** table id: 5; real id: 5 feature vector:  0.434594 -0.716795
+------ table members ------
+*** table id: 0; real id: 0
+0
+*** table id: 1; real id: 1
+1
+*** table id: 2; real id: 2
+2
+*** table id: 3; real id: 3
+3
+*** table id: 4; real id: 4
+4
+*** table id: 5; real id: 5
+prior = -2.70943, ll = 2.66301; p = -0.0464127; exp = 0.954648
+prior = -2.30613, ll = -1.69908; p = -4.00522; exp = 0.0182204
+prior = -2.16712, ll = 2.5581; p = 0.390977; exp = 1.47842
+prior = -0.111823, ll = 1.53843; p = 1.42661; exp = 4.16454
+prior = -0.166686, ll = 2.51198; p = 2.34529; exp = 10.4363
+prior = -1.09861, ll = 2.71828; p = 1.61967; exp = 5.05143
+assign 5 to table numbered 3 real is 3
+
+This is the log from the very first burning iteration. The point source 5 is the middle one of the second class. Since point 5 clearly closer to point 3 than point 4, the probability of linking 5 and 3 should be higher than or at least comparable to the probability of linking 5 and 4. However, under the effect of the scaling factor S = 3.0 the probability of linking 5 and 4 is 10.4363 / 4.16454 = 2.5 times higher than the probability of linking 5 and 3 simply because the randomly generated feature vector of table 4 is more similar to that of table 5. Certainly this is not an expected behavior.
+
+In summary, setting S higher than 1.0 might be desirable to make the clustering result more stable and convering faster, but S should be carefully tuned as well to avoid unexpected effects.
 
