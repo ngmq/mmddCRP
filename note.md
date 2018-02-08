@@ -1,3 +1,24 @@
+mnist:
+
+Does not converge:
+
+```
+
+./../bin/ddcrp-gibbs-example -w true -f mnist2000.data -s 0 -b 1000 -n 100 -i 0 --g 1.0 --C 0.1 --lambda 0.001 --S 1.0 > log.txt
+
+./../bin/ddcrp-gibbs-example -w true -f mnist2000.data -s 0 -b 1000 -n 100 -i 0 --g 1.0 --C 0.1 --lambda 0.001 --S 1.0 > log.txt
+
+./../bin/ddcrp-gibbs-example -w true -f mnist2000.data -s 0 -b 1000 -n 100 -i 0 --g 0.8 --C 0.05 --lambda 0.001 --S 1.0 > log.txt
+
+./../bin/ddcrp-gibbs-example -w true -f mnist2000.data -s 0 -b 1000 -n 100 -i 0 --g 1.0 --C 0.05 --lambda 0.01 --S 1.5 > log.txt
+
+ ./../bin/ddcrp-gibbs-example -w true -f mnist2000.data -s 0 -b 1000 -n 100 -i 0 --g 1.0 --C 0.01 --lambda 0.03 --S 1.5 > log.txt
+ 
+ ./../bin/ddcrp-gibbs-example -w true -f mnist2000.data -s 0 -b 1000 -n 100 -i 0 --g 1.0 --C 0.01 --lambda 0.01 --S 1.0 > log.txt
+
+```
+
+
 **Parameter gamma**
 
 The hyperparameter gamma in the exponential decay function is extremely important: f(d) = exp(-d / gamma)
