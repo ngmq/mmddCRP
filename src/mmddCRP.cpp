@@ -61,6 +61,8 @@ mmddCRP::mmddCRP(const Eigen::MatrixXd &data, double C, double lambda, double al
     initmean_ = data_.colwise().mean();
     data_.rowwise() -= initmean_.transpose();
 
+    std::cout << "Data is: \n" << data_ << std::endl;
+
     pairwiseDistance_ = Eigen::MatrixXd::Zero(data_.rows(), data_.rows());
     for(std::size_t i = 0; i < data_.rows(); ++i)
     {
@@ -98,6 +100,10 @@ mmddCRP::mmddCRP(const Eigen::MatrixXd &data, double C, double lambda, double al
     //std::cout << data_ << std::endl;
     
     tables_ = Eigen::MatrixXd::Random(data.rows(), data.cols());
+    // for(std::size_t row = 0; row < data_.rows(); ++row)
+    // {
+    //     tables_.row(row) += C_ * data_.row(row);
+    // }
     //tables_.rowwise() += initmean_.transpose();
     // for(std::size_t j = 0; j < data_.rows(); ++j)
     // {
@@ -122,7 +128,16 @@ mmddCRP::mmddCRP(const Eigen::MatrixXd &data, double C, double lambda, double al
 
 void mmddCRP::iterate(bool debug)
 {
-    //std::cout << "iterating......." << std::endl;
+    //if(debug)
+    {
+        // std::cout << "Before iterating......." << std::endl;
+        // std::cout << "alpha_ = " << alpha_ << "; ln(alpha_ / n) = " << std::log(alpha_ / num_customers()) << std::endl;
+        // print_table_members();
+
+        // std::cout << "ALL tables are:\n";
+        // print_table_vectors();
+    }
+
     std::vector<double> p_link;
     boost::range::random_shuffle(data_indices);
     for ( std::size_t isource = 0; isource < num_customers(); ++isource)
@@ -136,10 +151,14 @@ void mmddCRP::iterate(bool debug)
         ca_.remove_empty_tables();
         create_empty_table(source);
 
+        // std::cout << "============= source = " << source << std::endl;
+        // std::cout << "=== currently all tables are:\n";
+        // print_table_vectors();
+        // print_table_members();
+
         get_link_likelihoods(source, p_link);
         //if(debug && source == 3)
         {
-            // std::cout << "============= source = " << source << std::endl;
             // std::cout << "*** p_link.size = " << p_link.size() << std::endl;
             // for(std::size_t i = 0; i < p_link.size(); ++i)
             // {
@@ -147,11 +166,18 @@ void mmddCRP::iterate(bool debug)
             // }
         }
         std::transform(p_link.begin(), p_link.end(), p_link.begin(), [](double p){return std::exp(p); } );
+            //         for(std::size_t i = 0; i < p_link.size(); ++i)
+            // {
+            //     std::cout << "p_link[" << i << "] = " << p_link[i] << std::endl;
+            // }
         boost::random::discrete_distribution<std::size_t> d(p_link.begin(), p_link.end());
         std::size_t _new_label = d(rng_);
         
-        //std::cout << "sampled = " << _new_label << std::endl;
-        
+        // if(debug)
+        // {
+         //    std::cout << "assign " << source << " to table numbered " << _new_label << " real is " << ca_.get_real_idx(_new_label) << std::endl;
+        // }
+
         _new_label = ca_.get_real_idx(_new_label);
         //std::cout << "sampled real idx = " << _new_label << std::endl;
 
@@ -203,10 +229,10 @@ void mmddCRP::update_svm(std::size_t source, std::size_t _new_label)
     if(margin < 1)
     {
         loss = 1 - margin;
+        double learning_rate = std::min( C_, 0.5 * loss / data_.row(source).squaredNorm() );
+        tables_.row(_new_label) += learning_rate * data_.row(source);
+        tables_.row(max_val_idx) -= learning_rate * data_.row(source);
     }
-    double learning_rate = std::min( C_, 0.5 * loss / data_.row(source).squaredNorm() );
-    tables_.row(_new_label) += learning_rate * data_.row(source);
-    tables_.row(max_val_idx) -= learning_rate * data_.row(source);
 }
 
 void mmddCRP::create_empty_table(std::size_t source)
@@ -220,6 +246,7 @@ void mmddCRP::create_empty_table(std::size_t source)
     //std::cout << _rand_vector.rows() << ", " << _rand_vector.cols() << std::endl;
     
     tables_.row(_empty_table_idx) =  Eigen::MatrixXd::Random(1, data_.cols()).row(0);
+    //tables_.row(_empty_table_idx) += C_ * data_.row(source);
     //tables_.row(_empty_table_idx) += initmean_;
 
     // for(std::size_t i = 0; i < data_.cols(); ++i)
@@ -251,7 +278,9 @@ double mmddCRP::get_link_likelihood(std::size_t source, std::size_t target) cons
     //if(source == 3)
     {
         //std::cout << "target = " << target << std::endl;
-        //std::cout << "prior = " << log_link_prior << ", ll = " << log_data_likelihood << "; p = " << p << std::endl;
+        // std::cout << "prior = " << log_link_prior << ", ll = " << log_data_likelihood 
+        // << "; p = " << p 
+        // << "; exp = " << std::exp(p) << std::endl;
     }
     return p;
 }
@@ -266,20 +295,11 @@ double mmddCRP::get_log_link_prior(std::size_t source, std::size_t target) const
         target = ca_.get_real_idx(target);
         
         double dist = std::numeric_limits<double>::max(), tmp;
-        // std::set<std::size_t> ss = ca_.get_table_members(target);
-        // for(std::size_t rowIdx : ss)
-        // {
-        //     tmp = (data_.row(source) - data_.row(rowIdx)).norm();
-        //     dist = std::min(dist, tmp);
-        // }
-
-        for(std::size_t customerId = 0; customerId < num_customers(); ++customerId)
+        std::set<std::size_t> ss = ca_.get_table_members(target);
+        for(std::size_t customerId : ss)
         {
-            if( ca_.is_in_table(customerId, target) )
-            {
-                tmp = pairwiseDistance_(source, customerId); //(data_.row(source) - data_.row(customerId)).norm();
-                dist = std::min(dist, tmp);
-            }
+            tmp = pairwiseDistance_(source, customerId);;//(data_.row(source) - data_.row(rowIdx)).norm();
+            dist = std::min(dist, tmp);
         }
 
         //return std::log(1.0 * ca_.get_table_size(target) / num_customers());
@@ -294,7 +314,7 @@ double mmddCRP::get_log_link_prior(std::size_t source, std::size_t target) const
         }
         return -dist/gamma_;
         
-        return k1 * std::log(1.0 * ca_.get_table_size(target) / num_customers());// + k2 * -dist / gamma_;
+        //return k1 * std::log(1.0 * ca_.get_table_size(target) / num_customers());// + k2 * -dist / gamma_;
 
         // if( dist <= 1.5 )
         // {
@@ -322,15 +342,30 @@ void mmddCRP::print_tables(std::ostream& os) const
     ca_.print_tables(os);
 }
 
-void mmddCRP::print_table_vectors() const
+void mmddCRP::print_table_members() const
 {
-    std::cout << "------ tables ------\n";
+    std::cout << "------ table members ------\n";
     for(std::size_t i = 0; i < num_tables(); ++i)
     {
-        std::cout << tables_.row(ca_.get_real_idx(i)) << std::endl;
+        std::cout << "*** table id: " << i << "; real id: " << ca_.get_real_idx(i) << std::endl;
+        std::set<std::size_t> ss = ca_.get_table_members(ca_.get_real_idx(i));
+        for(auto x: ss)
+        {
+            std::cout << x << std::endl;
+        }
     }
-    std::cout << "------ initmean_ -------\n";
-    std::cout << initmean_ << std::endl;
+}
+void mmddCRP::print_table_vectors() const
+{
+    std::cout << "------ table features ------\n";
+    for(std::size_t i = 0; i < num_tables(); ++i)
+    {
+        std::cout << "*** table id: " << i << "; real id: " << ca_.get_real_idx(i) //<< std::endl;
+        //std::cout 
+        << " feature vector: " << tables_.row(ca_.get_real_idx(i)) << std::endl;
+    }
+    //std::cout << "------ initmean_ -------\n";
+    //std::cout << initmean_ << std::endl;
 }
 
 std::size_t mmddCRP::get_table(std::size_t customer) const
