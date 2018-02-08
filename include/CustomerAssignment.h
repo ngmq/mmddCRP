@@ -1,53 +1,34 @@
-#ifndef MMDDCRP_H
-#define MMDDCRP_H
-#include "CustomerAssignment.h"
-#include <eigen3/Eigen/Dense>
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/math/special_functions/gamma.hpp>
-#include <boost/math/special_functions/digamma.hpp>
-#include <memory>
-#include <iostream>
+#ifndef CUSTOMERASSIGNMENT_H
+#define CUSTOMERASSIGNMENT_H
+#include <boost/function.hpp>
+#include <set>
+//#include <map>
 
-#define lgamma(z) boost::math::lgamma(z)
-#define psi(z) boost::math::digamma(z)
-
-class mmddCRP
+class CustomerAssignment
 {
 public:
-    mmddCRP(const Eigen::MatrixXd& data, double C, double lambda, double alpha, double gamma, double S, unsigned int seed);
-    void iterate(bool debug = false);
+    CustomerAssignment(std::size_t num_customers);
     void print_tables(std::ostream &os) const;
-    void print_table_vectors() const;
-    std::size_t get_table(std::size_t customer) const;
-    std::size_t num_tables() const;
+    void unlink(std::size_t source);
+    void link(std::size_t source, std::size_t target);
+    std::size_t create_empty_table();
+    void remove_empty_tables();
+
+    std::size_t get_real_idx(std::size_t idx) const;
     std::size_t num_customers() const;
-
+    std::size_t num_tables() const;
+    std::size_t get_table(std::size_t customer) const;
+    std::set<std::size_t> get_table_members(std::size_t table) const;
+    std::size_t get_table_size(std::size_t table) const;
+    bool is_in_table(std::size_t customer, std::size_t table) const;
+    
 private:
-    void get_link_likelihoods(std::size_t source, std::vector<double>& p) const;
-    double get_link_likelihood(std::size_t source, std::size_t target) const;
-    double get_log_link_prior(std::size_t source, std::size_t target) const;
-    double get_log_data_likelihood(std::size_t source, std::size_t target) const;
-    void create_empty_table(std::size_t source);
-    void update_svm(std::size_t source, std::size_t _new_label);
-    double ars(double k, double n);
 
-    CustomerAssignment ca_;
-    Eigen::MatrixXd data_;
-    Eigen::MatrixXd tables_;
-    Eigen::VectorXd initmean_;
-    Eigen::VectorXd colwiseMin_, colwiseMax_;
-    Eigen::MatrixXd pairwiseDistance_;
-    double C_;
-    double lambda_;
-    double k_;
-    double alpha_;
-    double gamma_;
-    double S_;
-    double maxPossibleDistance_;
-    std::vector<std::size_t> data_indices;
-    std::size_t dim_;
-
-    boost::random::mt19937 rng_;
+    std::size_t n_customers_;
+    std::vector<std::size_t> tables_; // which table each customer sits at
+    std::vector<std::size_t> table_counts_; // number of customers sit at each table
+    std::vector<std::size_t> active_tables_; // tables that have at least 01 customers
+    std::vector<std::set<std::size_t> > tableMembers_; // containers of customers in every table
 };
 
 #endif
