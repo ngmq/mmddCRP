@@ -1,6 +1,6 @@
 mnist:
 
-Does not converge:
+Does not converge (or converge to 300s something):
 
 ```
 
@@ -16,6 +16,12 @@ Does not converge:
  
  ./../bin/ddcrp-gibbs-example -w true -f mnist2000.data -s 0 -b 1000 -n 100 -i 0 --g 1.0 --C 0.01 --lambda 0.01 --S 1.0 > log.txt
 
+```
+
+Seemingly converge to 60 ~ 70:
+
+```
+./../bin/ddcrp-gibbs-example -w true -f mnist2000.data -s 0 -b 1000 -n 100 -i 0 --g 0.5 --C 0.1 --lambda 0.002 --S 2.0 > log.txt
 ```
 
 
