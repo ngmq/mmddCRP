@@ -8,11 +8,13 @@ CustomerAssignment::CustomerAssignment(std::size_t num_customers)
       n_customers_(num_customers)
 {
     active_tables_.resize(num_customers);
+    tableMembers_.resize(num_customers);
     for(std::size_t i = 0; i < num_customers; ++i)
     {
         tables_[i] = i;
         active_tables_[i] = i;
         table_counts_[i] = 1;
+        tableMembers_[i].insert(i);
     }
 }
 
@@ -49,6 +51,7 @@ void CustomerAssignment::unlink(std::size_t source)
     if(old_table >= 0 && old_table < n_customers_)
     {
         table_counts_[old_table] -= 1;    
+        tableMembers_[old_table].erase(source);
     }    
 }
 
@@ -56,6 +59,7 @@ void CustomerAssignment::link(std::size_t source, std::size_t target)
 {
     tables_[source] = target;
     table_counts_[target] += 1;
+    tableMembers_[target].insert(source);
 }
 
 std::size_t CustomerAssignment::create_empty_table()
@@ -99,13 +103,15 @@ std::size_t CustomerAssignment::num_customers() const
 
 std::set<std::size_t> CustomerAssignment::get_table_members(std::size_t table) const
 {
-    std::set<std::size_t> v;
-    for (std::size_t c = 0; c < num_customers(); ++c)
-    {
-        if (is_in_table(c, table))
-            v.insert(c);
-    }
-    return v;
+    return tableMembers_[table];
+
+    // std::set<std::size_t> v;
+    // for (std::size_t c = 0; c < num_customers(); ++c)
+    // {
+    //     if (is_in_table(c, table))
+    //         v.insert(c);
+    // }
+    // return v;
 }
 
 std::size_t CustomerAssignment::num_tables() const
@@ -121,5 +127,6 @@ std::size_t CustomerAssignment::get_table(std::size_t customer) const
 
 std::size_t CustomerAssignment::get_table_size(std::size_t table) const
 {
-    return get_table_members(table).size();
+    return table_counts_[table];
+    //return get_table_members(table).size();
 }
