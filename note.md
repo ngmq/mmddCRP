@@ -24,6 +24,13 @@ Seemingly converge to 60 ~ 70:
 ./../bin/ddcrp-gibbs-example -w true -f mnist2000.data -s 0 -b 1000 -n 100 -i 0 --g 0.5 --C 0.1 --lambda 0.002 --S 2.0 > log.txt
 ```
 
+Converge to 31 after 4000 iterations:
+
+```
+./../bin/ddcrp-gibbs-example -w true -f mnist2000.data -s 0 -b 4000 -n 50 -i 0 --g 0.66 --C 0.5 --lambda 0.002 --S 2.0 > log.txt
+
+```
+
 
 **Parameter gamma**
 
