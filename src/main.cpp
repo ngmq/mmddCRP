@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
             ("C", po::value<double>(&C)->default_value(0.01), "SVM regularization constant")
             ("prior-mean-file,m", po::value<std::string>(), "csv file with cluster prior mean")
             ("lambda", po::value<double>(&lambda)->default_value(0.03),"Exponential lambda constant")
-            ("alpha,a", po::value<double>(&alpha)->default_value(4),"Log concentration parameters")
+            ("alpha,a", po::value<double>(&alpha)->default_value(10),"Log concentration parameters")
             ("nsamples,n", po::value<unsigned int>(&num_samples)->default_value(1), "number of samples to draw")
             ("nburn,b", po::value<unsigned int>(&num_burn_in_samples)->default_value(200), "number of burn-in samples for MCMC")
             ("seed,s", po::value<unsigned int>(&seed)->default_value(233), "RNG seed")
@@ -144,8 +144,166 @@ int main(int argc, char* argv[])
     {
     	featuresWithOutGroundTruth = features.rightCols(features.cols() - 1);
     }
+
+    Eigen::VectorXd colwiseMin_, colwiseMax_, initmean_;
+    colwiseMin_ = featuresWithOutGroundTruth.colwise().minCoeff();
+    colwiseMax_ = featuresWithOutGroundTruth.colwise().maxCoeff();
+
+    for(std::size_t i = 0; i < featuresWithOutGroundTruth.rows(); ++i)
+    {
+        for(std::size_t j = 0; j < featuresWithOutGroundTruth.cols(); ++j)
+        {
+            featuresWithOutGroundTruth(i, j) = 2.0 * (featuresWithOutGroundTruth(i, j) - colwiseMin_(j)) / (colwiseMax_(j) - colwiseMin_(j)) - 1.0;
+        }
+    }
+
+    initmean_ = featuresWithOutGroundTruth.colwise().mean();
+    featuresWithOutGroundTruth.rowwise() -= initmean_.transpose();
+
+    std::cout << "Read data done!\n";
+
+    std::size_t nrow = features.rows(), ncol = features.cols();
+
+    std::cout << "features shape = (" << nrow << ", " << ncol << ")\n";
+
+    // Eigen::VectorXd norm_ = Eigen::MatrixXd::Zero(1, features.rows()).row(0);
+    // Eigen::MatrixXd distances = Eigen::MatrixXd::Zero(features.rows(), features.rows());
+
+    // for(std::size_t i = 0; i < features.rows(); ++i)
+    // {
+    //     norm_(i) = features.row(i).norm();
+    // }
+
+    //std::cerr << "passed this\n";
+
+    // double minInClassDistance[10], maxInClassDistance[10], minOutClassDistance[10], maxOutClassDistance[10];
+    // double aveInClassDistance[10], aveOutClassDistance[10];
+    // unsigned int cntInClassDistance[10], cntOutClassDistance[10];
+    // double maxNorm = 0;
+
+    // for(std::size_t i = 0; i < 10; ++i)
+    // {
+    //     minInClassDistance[i] = maxInClassDistance[i] = minOutClassDistance[i] = maxOutClassDistance[i] = -1;
+    //     aveInClassDistance[i] = aveOutClassDistance[i] = 0;
+    //     cntInClassDistance[i] = cntOutClassDistance[i] = 0;
+    // }
+
+    // for(std::size_t i = 0; i < nrow; ++i)
+    // {
+    //     for(std::size_t j = i + 1; j < nrow; ++j)
+    //     {
+    //         double tmp = 0;
+            
+            /// Euclidean distance
+            //tmp = (featuresWithOutGroundTruth.row(i) - featuresWithOutGroundTruth.row(j)).norm();
+            
+            
+            /// Manhattan distance
+            // for(std::size_t k = 0; k < featuresWithOutGroundTruth.cols(); ++k)
+            // {
+            //     tmp += std::abs( featuresWithOutGroundTruth(i, k) - featuresWithOutGroundTruth(j, k) );
+            // }
+            
+
+            /// Arc-cosine distance
+            // tmp = std::acos( (features.row(i).dot(features.row(j))) / (norm_(i) * norm_(j)) );
+            //distances(i, j) = tmp;
+            //distances(j, i) = tmp;
+
+            // unsigned int label1 = 0, label2 = 0;
+
+            // if( isIndexLabelAtLastColumn )
+            // {
+            //     label1 = static_cast<unsigned int>(features(i, ncol - 1));
+            //     label2 = static_cast<unsigned int>(features(j, ncol - 1));
+            // }
+            // else
+            // {
+            //     label1 = static_cast<unsigned int>(features(i, 0));
+            //     label2 = static_cast<unsigned int>(features(j, 0));
+            // }
+
+            // if(label1 == label2)
+            // {
+            //     if( minInClassDistance[label1] < 0 || minInClassDistance[label1] > tmp ) minInClassDistance[label1] = tmp;
+            //     if( maxInClassDistance[label1] < 0 || maxInClassDistance[label1] < tmp ) maxInClassDistance[label1] = tmp;
+            //     aveInClassDistance[label1] += tmp;
+            //     cntInClassDistance[label1] += 1;
+            // }
+            // else
+            // {
+            //     if( minOutClassDistance[label1] < 0 || minOutClassDistance[label1] > tmp ) minOutClassDistance[label1] = tmp;
+            //     if( maxOutClassDistance[label1] < 0 || maxOutClassDistance[label1] < tmp ) maxOutClassDistance[label1] = tmp;
+
+            //     if( minOutClassDistance[label2] < 0 || minOutClassDistance[label2] > tmp ) minOutClassDistance[label2] = tmp;
+            //     if( maxOutClassDistance[label2] < 0 || maxOutClassDistance[label2] < tmp ) maxOutClassDistance[label2] = tmp;
+
+            //     aveOutClassDistance[label1] += tmp;
+            //     cntOutClassDistance[label1] += 1;
+            // }
+        //}
+
+        // double tmpNorm = featuresWithOutGroundTruth.row(i).squaredNorm();
+        // if( maxNorm < tmpNorm ) maxNorm = tmpNorm;
+    //}
+
+    // for(std::size_t i = 0; i < nrow; ++i)
+    // {
+    //     std::vector<std::pair<double, unsigned int> > vdp;
+
+    //     unsigned int label1 = 0, label2 = 0;
+    //     if( isIndexLabelAtLastColumn )
+    //         label1 = static_cast<unsigned int>(features(i, ncol - 1));
+    //     else
+    //         label1 = static_cast<unsigned int>(features(i, 0));
+
+    //     for(std::size_t j = 0; j < nrow; ++j)
+    //     {
+            
+    //         if( isIndexLabelAtLastColumn )
+    //         {
+    //             label2 = static_cast<unsigned int>(features(j, ncol - 1));
+    //         }
+    //         else
+    //         {
+    //             label2 = static_cast<unsigned int>(features(j, 0));
+    //         }
+
+    //         if(j != i)
+    //             vdp.push_back(std::pair<double, unsigned int>( distances(i, j), label2));
+    //     }
+    //     std::sort(vdp.begin(), vdp.end());
+
+    //     const unsigned int K = 10;
+    //     unsigned int cntRight = 0;
+
+    //     std::cout << "=== data point " << i << "; label = " << label1 << " ===\n";
+    //     for(std::size_t k = 0; k < K; ++k)
+    //     {
+    //         //std::cout << "neigbor in class " << vdp[k].second << " of distance " << vdp[k].first << std::endl;
+    //         if( vdp[k].second == label1 )
+    //         {
+    //             cntRight += 1;
+    //         }
+    //     }
+    //     std::cout << " cntRight = " << cntRight << std::endl;
+    // }
+
+    // for(std::size_t i = 0; i < 10; ++i)
+    // {
+    //     aveInClassDistance[i] /= (1.0 * cntInClassDistance[i]);
+    //     aveOutClassDistance[i] /= (1.0 * cntOutClassDistance[i]);
+
+    //     std::cout << "digit = " << i << std::endl
+    //     << "minInClassDistance = " << minInClassDistance[i] << std::endl
+    //     << "maxInClassDistance = " << maxInClassDistance[i] << std::endl
+    //     << "minOutClassDistance = " << minOutClassDistance[i] << std::endl
+    //     << "maxOutClassDistance = " << maxOutClassDistance[i] << std::endl
+    //     << "aveInClassDistance = " << aveInClassDistance[i] << std::endl
+    //     << "aveOutClassDistance = " << aveOutClassDistance[i] << std::endl;
+    // }
+    // std::cout << "maxNorm = " << maxNorm << std::endl;
     
-    //std::cout << featuresWithOutGroundTruth << std::endl;
 
     mmddCRP clustering(featuresWithOutGroundTruth, C, lambda, alpha, gamma, S, seed);
 
