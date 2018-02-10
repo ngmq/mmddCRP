@@ -1,5 +1,12 @@
 mnist:
 
+Number of points in the 10-nearest neighbors that are in the same class:
+From left to right: 10, 9, 8, 7, 6, 5
+
+Manhattan: 454 + 187 + 175 + 194 + 173 + 172 = 1355
+Euclidean: 551 + 229 + 176 + 157 + 176 + 153 = 1442
+Acos: 1073 + 256 + 173 + 125 + 94 + 63 = 1784
+
 Does not converge (or converge to 300s something):
 
 ```
