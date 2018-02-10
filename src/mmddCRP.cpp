@@ -48,7 +48,7 @@ mmddCRP::mmddCRP(const Eigen::MatrixXd &data, double C, double lambda, double al
     data_.rowwise() -= initmean_.transpose();
 
     pairwiseDistance_ = Eigen::MatrixXd::Zero(data_.rows(), data_.rows());
-    Eigen::VectorXd norm_ = Eigen::MatrixXd::Zero(data_.rows(), 1).row(0);
+    Eigen::VectorXd norm_ = Eigen::MatrixXd::Zero(1, data_.rows()).row(0);
     for(std::size_t i = 0; i < data_.rows(); ++i)
     {
         norm_(i) = data_.row(i).norm();
